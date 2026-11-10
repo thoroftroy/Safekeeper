@@ -1,6 +1,6 @@
 # Safekeeper for Android
 
-Backs up documents you choose into a verified ZIP. By Rednave.
+Backs up documents you choose into a verified ZIP.
 
 ## Easiest install and updates
 
