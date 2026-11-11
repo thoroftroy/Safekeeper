@@ -245,7 +245,7 @@ private fun JobDetail(j: Job, running: Triple<String, Int, Int>?, runningPath: S
                 when {
                     list == null -> item { AquaProgress(null, Modifier.fillMaxWidth()) }
                     list.isEmpty() -> item { Panel { ListRow("No snapshots yet", subtitle = "Tap Back up now to make the first one", icon = WonderIcons.Info, tint = Color(0xFF7A7F87)) } }
-                    else -> itemsIndexed(list, key = { _, s -> s.name }) { i, s ->
+                    else -> itemsIndexed(list, key = { j, s -> "${s.name}#$j" }) { i, s ->
                         var menu by remember { mutableStateOf(false) }
                         Box {
                             ListRow(DateUtils.formatDateTime(context, s.time, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME or DateUtils.FORMAT_SHOW_YEAR),
