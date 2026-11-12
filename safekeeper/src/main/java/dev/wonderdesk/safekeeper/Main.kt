@@ -1,3 +1,4 @@
+@file:OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 package dev.wonderdesk.safekeeper
 
 import android.Manifest
@@ -101,7 +102,7 @@ fun SafekeeperApp() {
             return@WonderApp
         }
         LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            itemsIndexed(jobs, key = { _, j -> j.id }) { _, j ->
+            itemsIndexed(jobs, key = { _, j -> j.id }) { _, j -> Box(Modifier.animateItemPlacement()) {
                 Panel {
                     Row(Modifier.clickable { openId = j.id }.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                         IconTile(if (j.mode == Mode.Snapshot) WonderIcons.Backup else WonderIcons.Sync, if (j.mode == Mode.Snapshot) Color(0xFF2E9E44) else Color(0xFF1E7FE8), 44.dp)
@@ -116,7 +117,7 @@ fun SafekeeperApp() {
                         WButton("Back up", { runNow(j) }, kind = ButtonKind.Primary, enabled = running == null)
                     }
                 }
-            }
+            }}
         }
     }
     running?.let { (name, i, n) -> ProgressDialog("Backing up $name", i, n, runningPath) }
