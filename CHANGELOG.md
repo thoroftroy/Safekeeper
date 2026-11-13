@@ -1,5 +1,11 @@
 # Safekeeper changelog
 
+## v0.5.3
+
+- Tap the tab you're already on to glide back to the top of its list
+- New Backup widget: when your backup last ran, with a Back up now button
+- Nothing required stays hidden: if Android is blocking something the app needs, a slim banner says what and takes you straight to the switch, and Settings › Permissions and access lists everything with its state
+
 ## v0.5.2
 
 - Backup list animates as backups are added or removed

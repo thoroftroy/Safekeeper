@@ -54,7 +54,7 @@ object Jobs {
     private fun prefs(c: Context) = c.getSharedPreferences("safekeeper", Context.MODE_PRIVATE)
     fun all(c: Context): List<Job> = runCatching { JSONArray(prefs(c).getString("jobs", "[]")).let { a -> (0 until a.length()).map { Job.from(a.getJSONObject(it)) } } }.getOrDefault(emptyList())
     fun save(c: Context, list: List<Job>) { prefs(c).edit().putString("jobs", JSONArray(list.map { it.toJson() }).toString()).apply(); schedule(c, list) }
-    fun update(c: Context, j: Job) = save(c, all(c).map { if (it.id == j.id) j else it }.let { l -> if (l.none { it.id == j.id }) l + j else l })
+    fun update(c: Context, j: Job) { save(c, all(c).map { if (it.id == j.id) j else it }.let { l -> if (l.none { it.id == j.id }) l + j else l }); dev.wonderdesk.shared.refreshWidgets(c, BackupWidget::class.java) }
 
     fun log(c: Context): List<String> = runCatching { JSONArray(prefs(c).getString("log", "[]")).let { a -> (0 until a.length()).map { a.getString(it) } } }.getOrDefault(emptyList())
     fun addLog(c: Context, line: String) { val l = (listOf(SimpleDateFormat("MMM d, HH:mm", Locale.getDefault()).format(Date()) + " · " + line) + log(c)).take(100)

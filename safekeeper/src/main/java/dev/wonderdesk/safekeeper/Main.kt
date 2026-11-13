@@ -42,6 +42,11 @@ class MainActivity : WonderActivity() {
     @Composable override fun Content() = SafekeeperApp()
 }
 
+/** What Android must allow for this app to work fully; shown as a banner when off and in Settings. */
+private val APP_NEEDS by lazy { listOf(
+    WonderNeed.notifications("Shows backup progress and tells you if a scheduled backup failed", required = false),
+) }
+
 private const val ABOUT = "Safekeeper backs up the folders you choose to an SD card, USB drive or any folder Android can reach, including cloud storage apps. " +
     "Keep versioned snapshots with checksums, or a mirror that copies only what changed, on a schedule or whenever you tap Back up. " +
     "It can't back up other apps' private data or Android itself."
@@ -82,7 +87,7 @@ fun SafekeeperApp() {
         onDelete = { Jobs.save(context, Jobs.all(context).filter { it.id != e.id }); refresh(); editing = null; openId = null }); return }
     val open = openId?.let { id -> jobs.find { it.id == id } }
     if (open != null) { JobDetail(open, running, runningPath, onBack = { openId = null }, onEdit = { editing = open }, onRun = { runNow(open) }); return }
-    WonderApp(appName = "Safekeeper", about = ABOUT,
+    WonderApp(needs = APP_NEEDS, appName = "Safekeeper", about = ABOUT,
         tabs = listOf(WonderTab("backups", "Backups", WonderIcons.Backup), WonderTab("log", "History", WonderIcons.History)), selectedTab = tab, onTab = { tab = it },
         actions = { if (tab == "backups") ToolbarButton(WonderIcons.Add, "New backup", { editing = Job() }) }) {
         toastRef.value = LocalToast.current
@@ -90,7 +95,7 @@ fun SafekeeperApp() {
         if (tab == "log") {
             val log = remember { Jobs.log(context) }
             if (log.isEmpty()) EmptyState("No backups yet", "Each backup and restore is listed here.", icon = WonderIcons.History)
-            else LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
+            else LazyColumn(Modifier.fillMaxSize(), state = rememberTabTopList(), contentPadding = PaddingValues(16.dp)) {
                 itemsIndexed(log) { i, l -> ListRow(l.substringAfter(" · "), Modifier.panelItem(i, log.size), subtitle = l.substringBefore(" · "),
                     icon = if ("failed" in l) WonderIcons.Error else WonderIcons.CheckCircle, tint = if ("failed" in l) p.danger else p.success) }
             }
@@ -101,7 +106,7 @@ fun SafekeeperApp() {
                 action = { WButton("Set up a backup", { editing = Job() }, icon = WonderIcons.Add, kind = ButtonKind.Primary) })
             return@WonderApp
         }
-        LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        LazyColumn(Modifier.fillMaxSize(), state = rememberTabTopList(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             itemsIndexed(jobs, key = { _, j -> j.id }) { _, j -> Box(Modifier.animateItemPlacement()) {
                 Panel {
                     Row(Modifier.clickable { openId = j.id }.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -227,7 +232,7 @@ private fun JobDetail(j: Job, running: Triple<String, Int, Int>?, runningPath: S
     if (b != null) { SnapshotBrowser(b, onBack = { browsing = null }, onRestore = { only -> restoreReq = b to only; target.launch(null) }); return }
     WonderApp(appName = "Safekeeper", about = ABOUT, title = j.name, onBack = onBack, actions = { ToolbarButton(WonderIcons.Edit, "Edit", onEdit) }) {
         toastRef.value = LocalToast.current
-        LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
+        LazyColumn(Modifier.fillMaxSize(), state = rememberTabTopList(), contentPadding = PaddingValues(16.dp)) {
             item {
                 Panel {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -305,7 +310,7 @@ private fun SnapshotBrowser(s: Snapshot, onBack: () -> Unit, onRestore: (Set<Str
                 val prefix = if (dir.isEmpty()) "" else "$dir/"
                 val children = list.filter { it.path.startsWith(prefix) }.groupBy { it.path.removePrefix(prefix).substringBefore('/') }
                     .map { (name, items) -> Triple(name, items.size > 1 || items[0].path.removePrefix(prefix).contains('/'), items) }.sortedWith(compareByDescending<Triple<String, Boolean, List<ManifestEntry>>> { it.second }.thenBy { it.first.lowercase() })
-                LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
+                LazyColumn(Modifier.fillMaxSize(), state = rememberTabTopList(), contentPadding = PaddingValues(16.dp)) {
                     item { Text((if (dir.isEmpty()) "" else "$dir · ") + "${list.size} files · ${formatSize(list.sumOf { it.size })}", Modifier.padding(6.dp, 0.dp, 6.dp, 8.dp), style = MaterialTheme.typography.bodySmall, color = p.secondaryText) }
                     itemsIndexed(children) { i, (name, isDir, items) ->
                         val key = prefix + name
