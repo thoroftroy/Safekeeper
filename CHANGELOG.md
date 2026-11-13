@@ -1,5 +1,9 @@
 # Safekeeper changelog
 
+## v0.5.5
+
+- Widgets can now match your look: new Bliss blue and Super neon backgrounds, and “Match my Wonderdesk look” follows whatever Control Room is set to
+
 ## v0.5.4
 
 - Fixed the Backup widget not refreshing after a backup
