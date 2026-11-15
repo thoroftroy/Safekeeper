@@ -1,3 +1,7 @@
 <resources>
     <string name="widget_backup_desc">When your backup last ran, with a Back up now button</string>
+    <string name="wp_label">Safekeeper</string>
+    <string name="wp_title">My backup</string>
+    <string name="wp_text">✓ 2 hours ago · 1,240 files</string>
+    <string name="wp_btn">Back up now</string>
 </resources>
