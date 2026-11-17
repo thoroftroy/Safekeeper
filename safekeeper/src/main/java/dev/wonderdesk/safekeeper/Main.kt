@@ -305,7 +305,7 @@ private fun SnapshotBrowser(s: Snapshot, onBack: () -> Unit, onRestore: (Set<Str
         val list = files
         when {
             err != null -> EmptyState("Can't read this snapshot", err!!, icon = WonderIcons.Error)
-            list == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = p.accent) }
+            list == null -> LoadingPane("Reading this snapshot", detail = "Listing the files that were saved")
             else -> {
                 val prefix = if (dir.isEmpty()) "" else "$dir/"
                 val children = list.filter { it.path.startsWith(prefix) }.groupBy { it.path.removePrefix(prefix).substringBefore('/') }

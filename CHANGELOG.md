@@ -1,5 +1,10 @@
 # Safekeeper changelog
 
+## v0.5.10
+
+- Loading screens now say what they are doing instead of showing a bare spinner
+- Wording tidied so no sentence needs a dash
+
 ## v0.5.9
 
 - Widgets show a realistic preview in the widget list, so you can see what you're adding
