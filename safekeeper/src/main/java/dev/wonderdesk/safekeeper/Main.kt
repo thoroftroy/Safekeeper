@@ -16,6 +16,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
@@ -89,7 +91,18 @@ fun SafekeeperApp() {
     if (open != null) { JobDetail(open, running, runningPath, onBack = { openId = null }, onEdit = { editing = open }, onRun = { runNow(open) }); return }
     WonderApp(needs = APP_NEEDS, appName = "Safekeeper", about = ABOUT,
         tabs = listOf(WonderTab("backups", "Backups", WonderIcons.Backup), WonderTab("log", "History", WonderIcons.History)), selectedTab = tab, onTab = { tab = it },
-        actions = { if (tab == "backups") ToolbarButton(WonderIcons.Add, "New backup", { editing = Job() }) }) {
+        actions = { if (tab == "backups") ToolbarButton(WonderIcons.Add, "New backup", { editing = Job() }) },
+        settings = {
+            val sk = remember { context.getSharedPreferences("safekeeper", android.content.Context.MODE_PRIVATE) }
+            Panel(title = "Notifications and history") {
+                var quiet by remember { mutableStateOf(sk.getBoolean("quiet", false)) }
+                SwitchRow("Only tell me about problems", quiet, { quiet = it; sk.edit().putBoolean("quiet", it).apply() }, subtitle = "Progress still shows while a backup runs, but a finished one stays quiet", icon = WonderIcons.Notifications, tint = Color(0xFFE5483C))
+                PanelDivider()
+                var lm by remember { mutableIntStateOf(sk.getInt("logMax", 100)) }
+                Column(Modifier.padding(16.dp, 10.dp)) { Text("Keep this many lines of history", style = MaterialTheme.typography.labelLarge)
+                    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) { listOf(30, 100, 300, 1000).forEach { v -> Chip("$v", lm == v, { lm = v; sk.edit().putInt("logMax", v).apply() }) } } }
+            }
+        }) {
         toastRef.value = LocalToast.current
         val p = wonderPalette()
         if (tab == "log") {

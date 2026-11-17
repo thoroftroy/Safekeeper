@@ -1,5 +1,11 @@
 # Safekeeper changelog
 
+## v0.5.11
+
+- New settings: only be told about problems, and how much history to keep
+- Text size and accent colour chosen in Control Room now apply here
+- New Rotate with the phone switch in Settings
+
 ## v0.5.10
 
 - Loading screens now say what they are doing instead of showing a bare spinner

@@ -57,7 +57,7 @@ object Jobs {
     fun update(c: Context, j: Job) { save(c, all(c).map { if (it.id == j.id) j else it }.let { l -> if (l.none { it.id == j.id }) l + j else l }); dev.wonderdesk.shared.refreshWidgets(c, BackupWidget::class.java) }
 
     fun log(c: Context): List<String> = runCatching { JSONArray(prefs(c).getString("log", "[]")).let { a -> (0 until a.length()).map { a.getString(it) } } }.getOrDefault(emptyList())
-    fun addLog(c: Context, line: String) { val l = (listOf(SimpleDateFormat("MMM d, HH:mm", Locale.getDefault()).format(Date()) + " · " + line) + log(c)).take(100)
+    fun addLog(c: Context, line: String) { val l = (listOf(SimpleDateFormat("MMM d, HH:mm", Locale.getDefault()).format(Date()) + " · " + line) + log(c)).take(c.getSharedPreferences("safekeeper", Context.MODE_PRIVATE).getInt("logMax", 100))
         prefs(c).edit().putString("log", JSONArray(l).toString()).apply() }
 
     fun schedule(c: Context, list: List<Job>) {
@@ -276,6 +276,9 @@ object Notes {
         val open = PendingIntent.getActivity(c, 0, Intent(c, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
         val b = Notification.Builder(c, CHANNEL).setSmallIcon(android.R.drawable.ic_menu_save).setContentTitle(title).setContentText(text).setContentIntent(open).setOnlyAlertOnce(true)
         if (progress != null) b.setProgress(progress.second, progress.first, false).setOngoing(true) else b.setAutoCancel(true)
+        val sp = c.getSharedPreferences("safekeeper", Context.MODE_PRIVATE)
+        // "Only tell me about problems": still shows live progress, but a finished backup stays quiet.
+        if (progress == null && sp.getBoolean("quiet", false) && !title.contains("fail", true) && !text.contains("fail", true) && !text.contains("error", true)) { runCatching { c.getSystemService(NotificationManager::class.java).cancel(id) }; return }
         runCatching { c.getSystemService(NotificationManager::class.java).notify(id, b.build()) }
     }
 }
