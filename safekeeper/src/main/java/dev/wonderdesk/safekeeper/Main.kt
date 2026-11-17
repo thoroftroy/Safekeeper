@@ -274,7 +274,7 @@ private fun JobDetail(j: Job, running: Triple<String, Int, Int>?, runningPath: S
                 item { SectionLabel("Snapshots", Modifier.padding(start = 6.dp, bottom = 6.dp)) }
                 val list = snaps
                 when {
-                    list == null -> item { AquaProgress(null, Modifier.fillMaxWidth()) }
+                    list == null -> item { Column(verticalArrangement = Arrangement.spacedBy(6.dp)) { Text("Reading the snapshots in this backup", style = MaterialTheme.typography.titleSmall); Text("Looking through the backup folder, longer for big backups", style = MaterialTheme.typography.bodySmall, color = wonderPalette().secondaryText); AquaProgress(null, Modifier.fillMaxWidth()) } }
                     list.isEmpty() -> item { Panel { ListRow("No snapshots yet", subtitle = "Tap Back up now to make the first one", icon = WonderIcons.Info, tint = Color(0xFF7A7F87)) } }
                     else -> itemsIndexed(list, key = { j, s -> "${s.name}#$j" }) { i, s ->
                         var menu by remember { mutableStateOf(false) }

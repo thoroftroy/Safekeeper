@@ -1,5 +1,9 @@
 # Safekeeper changelog
 
+## v0.5.13
+
+- Loading a backup's snapshots now says what it is doing
+
 ## v0.5.12
 
 - New settings for what a new backup starts with: charging only, Wi-Fi only, skip hidden files and how many snapshots to keep
