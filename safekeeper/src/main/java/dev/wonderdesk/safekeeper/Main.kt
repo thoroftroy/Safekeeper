@@ -91,13 +91,25 @@ fun SafekeeperApp() {
     if (open != null) { JobDetail(open, running, runningPath, onBack = { openId = null }, onEdit = { editing = open }, onRun = { runNow(open) }); return }
     WonderApp(needs = APP_NEEDS, appName = "Safekeeper", about = ABOUT,
         tabs = listOf(WonderTab("backups", "Backups", WonderIcons.Backup), WonderTab("log", "History", WonderIcons.History)), selectedTab = tab, onTab = { tab = it },
-        actions = { if (tab == "backups") ToolbarButton(WonderIcons.Add, "New backup", { editing = Job() }) },
+        actions = { if (tab == "backups") ToolbarButton(WonderIcons.Add, "New backup", { editing = newJob(context) }) },
         settings = {
             val sk = remember { context.getSharedPreferences("safekeeper", android.content.Context.MODE_PRIVATE) }
             Panel(title = "Notifications and history") {
                 var quiet by remember { mutableStateOf(sk.getBoolean("quiet", false)) }
                 SwitchRow("Only tell me about problems", quiet, { quiet = it; sk.edit().putBoolean("quiet", it).apply() }, subtitle = "Progress still shows while a backup runs, but a finished one stays quiet", icon = WonderIcons.Notifications, tint = Color(0xFFE5483C))
                 PanelDivider()
+            }
+            Panel(title = "New backups start with") {
+                var dc by remember { mutableStateOf(sk.getBoolean("defCharging", true)) }
+                SwitchRow("Only while charging", dc, { dc = it; sk.edit().putBoolean("defCharging", it).apply() }, icon = WonderIcons.BatteryChargingFull, tint = Color(0xFF2E9E44)); PanelDivider()
+                var dw by remember { mutableStateOf(sk.getBoolean("defWifi", false)) }
+                SwitchRow("Only on Wi-Fi", dw, { dw = it; sk.edit().putBoolean("defWifi", it).apply() }, icon = WonderIcons.Wifi, tint = Color(0xFF1E7FE8)); PanelDivider()
+                var dh by remember { mutableStateOf(sk.getBoolean("defSkipHidden", true)) }
+                SwitchRow("Skip hidden files", dh, { dh = it; sk.edit().putBoolean("defSkipHidden", it).apply() }, icon = WonderIcons.Visibility, tint = Color(0xFF8E44AD)); PanelDivider()
+                var dk by remember { mutableIntStateOf(sk.getInt("defKeep", 5)) }
+                Column(Modifier.padding(16.dp, 10.dp)) { Text("Snapshots to keep: $dk", style = MaterialTheme.typography.labelLarge); Slider(dk.toFloat(), { dk = it.toInt() }, valueRange = 1f..30f, onValueChangeFinished = { sk.edit().putInt("defKeep", dk).apply() }) }
+            }
+            Panel(title = "History") {
                 var lm by remember { mutableIntStateOf(sk.getInt("logMax", 100)) }
                 Column(Modifier.padding(16.dp, 10.dp)) { Text("Keep this many lines of history", style = MaterialTheme.typography.labelLarge)
                     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) { listOf(30, 100, 300, 1000).forEach { v -> Chip("$v", lm == v, { lm = v; sk.edit().putInt("logMax", v).apply() }) } } }
@@ -116,7 +128,7 @@ fun SafekeeperApp() {
         }
         if (jobs.isEmpty()) {
             EmptyState("Protect your files", "Make a backup of your photos, documents or any folder. Save it to an SD card, a USB drive or a cloud folder, and let it run by itself.",
-                action = { WButton("Set up a backup", { editing = Job() }, icon = WonderIcons.Add, kind = ButtonKind.Primary) })
+                action = { WButton("Set up a backup", { editing = newJob(context) }, icon = WonderIcons.Add, kind = ButtonKind.Primary) })
             return@WonderApp
         }
         LazyColumn(Modifier.fillMaxSize(), state = rememberTabTopList(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -337,4 +349,10 @@ private fun SnapshotBrowser(s: Snapshot, onBack: () -> Unit, onRestore: (Set<Str
             }
         }
     }
+}
+
+/** A new backup starts from the defaults chosen in Settings. */
+fun newJob(c: android.content.Context): Job {
+    val sk = c.getSharedPreferences("safekeeper", android.content.Context.MODE_PRIVATE)
+    return Job(keep = sk.getInt("defKeep", 5), charging = sk.getBoolean("defCharging", true), unmetered = sk.getBoolean("defWifi", false), skipHidden = sk.getBoolean("defSkipHidden", true))
 }
