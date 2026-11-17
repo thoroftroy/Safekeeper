@@ -1,5 +1,9 @@
 # Safekeeper changelog
 
+## v0.5.12
+
+- New settings for what a new backup starts with: charging only, Wi-Fi only, skip hidden files and how many snapshots to keep
+
 ## v0.5.11
 
 - New settings: only be told about problems, and how much history to keep
