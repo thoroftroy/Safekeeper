@@ -101,9 +101,9 @@ fun SafekeeperApp() {
             }
             Panel(title = "New backups start with") {
                 var dc by remember { mutableStateOf(sk.getBoolean("defCharging", true)) }
-                SwitchRow("Only while charging", dc, { dc = it; sk.edit().putBoolean("defCharging", it).apply() }, icon = WonderIcons.BatteryChargingFull, tint = Color(0xFF2E9E44)); PanelDivider()
+                SwitchRow("Only while charging", dc, { dc = it; sk.edit().putBoolean("defCharging", it).apply() }, icon = WonderIcons.BatteryChargingFull, tint = Color(0xFF2E9E44), help = "Backs up only while the phone is charging, to save battery."); PanelDivider()
                 var dw by remember { mutableStateOf(sk.getBoolean("defWifi", false)) }
-                SwitchRow("Only on Wi-Fi", dw, { dw = it; sk.edit().putBoolean("defWifi", it).apply() }, icon = WonderIcons.Wifi, tint = Color(0xFF1E7FE8)); PanelDivider()
+                SwitchRow("Only on Wi-Fi", dw, { dw = it; sk.edit().putBoolean("defWifi", it).apply() }, icon = WonderIcons.Wifi, tint = Color(0xFF1E7FE8), help = "Backs up only on Wi-Fi so it doesn't use mobile data."); PanelDivider()
                 var dh by remember { mutableStateOf(sk.getBoolean("defSkipHidden", true)) }
                 SwitchRow("Skip hidden files", dh, { dh = it; sk.edit().putBoolean("defSkipHidden", it).apply() }, icon = WonderIcons.Visibility, tint = Color(0xFF8E44AD)); PanelDivider()
                 var dk by remember { mutableIntStateOf(sk.getInt("defKeep", 5)) }
@@ -208,7 +208,7 @@ private fun JobEditor(initial: Job, onClose: () -> Unit, onSave: (Job) -> Unit, 
                         listOf(1, 3, 5, 10, 30).forEach { k -> Chip("$k", j.keep == k, { j = j.copy(keep = k) }); Spacer(Modifier.width(4.dp)) }
                     }
                 }
-                if (j.mode == Mode.Mirror) { PanelDivider(0.dp); SwitchRow("Remove files I've deleted", j.mirrorDeletes, { j = j.copy(mirrorDeletes = it) }, subtitle = "Keeps the mirror an exact copy") }
+                if (j.mode == Mode.Mirror) { PanelDivider(0.dp); SwitchRow("Remove files I've deleted", j.mirrorDeletes, { j = j.copy(mirrorDeletes = it) }, subtitle = "Keeps the mirror an exact copy", help = "Deletes from the backup what you deleted on the phone. Off keeps old copies.") }
                 PanelDivider(0.dp)
                 SwitchRow("Skip hidden files", j.skipHidden, { j = j.copy(skipHidden = it) }, subtitle = "Files and folders whose names start with a dot")
             }
@@ -219,9 +219,9 @@ private fun JobEditor(initial: Job, onClose: () -> Unit, onSave: (Job) -> Unit, 
                 }
                 if (j.schedule != Schedule.Manual) {
                     PanelDivider(0.dp)
-                    SwitchRow("Only while charging", j.charging, { j = j.copy(charging = it) }, icon = WonderIcons.BatteryChargingFull, tint = Color(0xFF2E9E44))
+                    SwitchRow("Only while charging", j.charging, { j = j.copy(charging = it) }, icon = WonderIcons.BatteryChargingFull, tint = Color(0xFF2E9E44), help = "Backs up only while the phone is charging, to save battery.")
                     PanelDivider()
-                    SwitchRow("Only on Wi-Fi", j.unmetered, { j = j.copy(unmetered = it) }, subtitle = "For cloud folders", icon = WonderIcons.Wifi, tint = Color(0xFF1E7FE8))
+                    SwitchRow("Only on Wi-Fi", j.unmetered, { j = j.copy(unmetered = it) }, subtitle = "For cloud folders", icon = WonderIcons.Wifi, tint = Color(0xFF1E7FE8), help = "Backs up only on Wi-Fi so it doesn't use mobile data.")
                 }
             }
         }
@@ -299,7 +299,7 @@ private fun JobDetail(j: Job, running: Triple<String, Int, Int>?, runningPath: S
                     }
                 }
             } else item {
-                Panel { ListRow("Mirror folder", subtitle = context.treeLabel(j.dest) + " › ${j.name} › mirror", icon = WonderIcons.Sync, tint = Color(0xFF1E7FE8)) }
+                Panel { ListRow("Mirror folder", subtitle = context.treeLabel(j.dest) + " › ${j.name} › mirror", icon = WonderIcons.Sync, tint = Color(0xFF1E7FE8), help = "Makes the backup an exact copy of the folder, including removing files you deleted.") }
             }
             item {
                 Spacer(Modifier.height(16.dp))
