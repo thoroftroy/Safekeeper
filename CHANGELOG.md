@@ -1,5 +1,9 @@
 # Safekeeper changelog
 
+## v0.5.14
+
+- Fixed a gap above the keyboard in screens with a bottom tab bar: the tab bar now steps aside while you type, so you can see what you are writing
+
 ## v0.5.13
 
 - Loading a backup's snapshots now says what it is doing
