@@ -84,6 +84,19 @@ fun SafekeeperApp() {
             refresh()
         }
     }
+    // The scene is the state of your backups: busy while one runs, an anxious amber when one failed or is long overdue,
+    // a calm settled green when they are all fresh, and a burst when a backup finishes well.
+    val anyFailed = jobs.any { it.lastRun > 0 && !it.lastOk }
+    val stale = jobs.any { it.lastRun == 0L || System.currentTimeMillis() - it.lastRun > 14L * 86_400_000L }
+    SceneMoodEffect(when {
+        running != null -> SceneMood(hue = 200f, energy = 2.2f, glyphs = listOf("↑", "⇡", "•", "✓"))
+        anyFailed -> SceneMood(hue = 28f, tint = android.graphics.Color.argb(80, 240, 140, 50), pulse = .2f, glyphs = listOf("⚠", "!", "•"))
+        jobs.isNotEmpty() && stale -> SceneMood(hue = 45f, tint = android.graphics.Color.argb(50, 240, 190, 80), energy = .8f, glyphs = listOf("◌", "•", "?"))
+        jobs.isNotEmpty() -> SceneMood(hue = 128f, tint = android.graphics.Color.argb(45, 90, 210, 120), energy = .6f, glyphs = listOf("✓", "🛡", "•"))
+        else -> SceneMood()
+    })
+    var wasRunning by remember { mutableStateOf(false) }
+    LaunchedEffect(running == null) { if (running == null && wasRunning && jobs.none { it.lastRun > 0 && !it.lastOk }) WonderMood.celebrate(listOf("✓", "🛡", "✦")); wasRunning = running != null }
     val e = editing
     if (e != null) { JobEditor(e, onClose = { editing = null }, onSave = { j -> Jobs.update(context, j); refresh(); editing = null; openId = j.id },
         onDelete = { Jobs.save(context, Jobs.all(context).filter { it.id != e.id }); refresh(); editing = null; openId = null }); return }

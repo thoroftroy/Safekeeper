@@ -1,5 +1,9 @@
 # Safekeeper changelog
 
+## v0.6.0
+
+- The background shows the state of your backups: busy while one runs, an anxious amber when one failed, a waiting yellow when one is long overdue, and a calm settled green when they are all fresh. A backup that finishes well gets a burst
+
 ## v0.5.19
 
 - The symbols drifting in the background are smaller and fainter so they no longer crowd text; selected segments and chips are readable in every look (including Super); the warning banner at the top has a solid backing so its text is easy to read
