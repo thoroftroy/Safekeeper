@@ -89,12 +89,15 @@ fun SafekeeperApp() {
     val anyFailed = jobs.any { it.lastRun > 0 && !it.lastOk }
     val stale = jobs.any { it.lastRun == 0L || System.currentTimeMillis() - it.lastRun > 14L * 86_400_000L }
     SceneMoodEffect(when {
-        running != null -> SceneMood(hue = 200f, energy = 2.2f, glyphs = listOf("↑", "⇡", "•", "✓"))
+        // A backup running fills the shield from the bottom, file by file.
+        running != null -> SceneMood(hue = 200f, energy = 2.2f, glyphs = listOf("↑", "⇡", "•", "✓"), level = running?.let { if (it.third > 0) it.second.toFloat() / it.third else 0f })
         anyFailed -> SceneMood(hue = 28f, tint = android.graphics.Color.argb(80, 240, 140, 50), pulse = .2f, glyphs = listOf("⚠", "!", "•"))
         jobs.isNotEmpty() && stale -> SceneMood(hue = 45f, tint = android.graphics.Color.argb(50, 240, 190, 80), energy = .8f, glyphs = listOf("◌", "•", "?"))
         jobs.isNotEmpty() -> SceneMood(hue = 128f, tint = android.graphics.Color.argb(45, 90, 210, 120), energy = .6f, glyphs = listOf("✓", "🛡", "•"))
         else -> SceneMood()
     })
+    SceneFeedScope()
+    SideEffect { SceneFeed.active = running != null }
     var wasRunning by remember { mutableStateOf(false) }
     LaunchedEffect(running == null) { if (running == null && wasRunning && jobs.none { it.lastRun > 0 && !it.lastOk }) WonderMood.celebrate(listOf("✓", "🛡", "✦")); wasRunning = running != null }
     val e = editing
