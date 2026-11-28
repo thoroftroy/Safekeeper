@@ -1,5 +1,9 @@
 # Safekeeper changelog
 
+## v0.7.1
+
+- The moving background holds still while Battery Saver is on, so it uses next to no power then. It still changes with what the app is doing
+
 ## v0.7.0
 
 - While a backup runs the background shield fills from the bottom, file by file
